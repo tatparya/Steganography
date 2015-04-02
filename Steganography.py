@@ -67,23 +67,29 @@ class Message:
     #   Function to save message to image
     #   Parameters: 1
     #   1.  targetImagePath: Target path to image file
-    def saveToImage(self):
+    def saveToImage(self, targetImagePath):
         pass
 
     #   Function to save message to text file
     #   Parameters: 1
     #   1.  targetTextFilePath: Target path to text file
-    def saveToTextFile(self):
+    def saveToTextFile(self, targetTextFilePath):
         pass
 
-    #   Function to save message to target
+    #   Function to call save message to target based on target type
     #   Parameters: 1
     #   1.  targetPath: Target path to target file
-    def saveToTarget(self):
-        pass
+    def saveToTarget(self, targetPath):
+        #   Find message type
+        if self.messageType == "Text":
+            #   Text message
+            self.saveToTextFile( targetPath )
+        elif self.messageType == "GrayImage" or self.messageType == "ColorImage":
+            #   Image message
+            self.saveToImage( targetPath )
 
     #   Function to get XML string
-    #   Parameters: 1None
+    #   Parameters: None
     def getXmlString(self):
         pass
 
