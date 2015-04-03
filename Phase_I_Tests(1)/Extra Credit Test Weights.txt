@@ -1,0 +1,32 @@
+Extra Credit Test Weights
+
+Test                                                    Grade
+----------------------------------------------------------------
+test_embedEncryptedText                                 1.0
+test_embedEncryptedGrayImage                            1.0
+test_embedEncryptedColorImage                           1.0
+test_extractEncryptedText                               1.0
+test_extractEncryptedGrayImage                          1.0
+test_extractEncryptedColorImage                         1.0
+test_embedTextHorizontal                                1.0
+test_embedTextVertical                                  1.0
+test_extractTextHorizontal                              1.0
+test_extractTextVertical                                1.0
+test_embedGrayImageHorizontal                           1.0
+test_embedGrayImageVertical                             1.0
+test_extractGrayImageHorizontal                         1.0
+test_extractGrayImageVertical                           1.0
+test_embedColorImageHorizontal                          1.0
+test_embedColorImageVertical                            1.0
+test_extractColorImageHorizontal                        1.0
+test_extractColorImageVertical                          1.0
+
+test_encryptedTextXml                               ( If any of
+test_encryptedGrayImageXml                           these passed,
+test_colorImageXml                                   you get 1. Else 0.)
+
+test_badMessageInitializerWithEmptyPassword         ( If any of
+test_badMessageInitializerWithEmptyMessageArgument   these passed,
+test_badMediumInitializerWithGrayImage               you get 1. Else 0.)
+                                                    ------------
+Total Score                                           20.0

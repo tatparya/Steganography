@@ -1,0 +1,47 @@
+Test Weights
+
+Test                                                    Grade
+----------------------------------------------------------------
+(Text)
+test_embedShortTextHorizontal                           2.5
+test_embedShortTextVertical                             2.5
+test_embedLongTextHorizontal                            2.5
+test_embedLongTextVertical                              2.5
+test_extractShortTextHorizontal                         2.5
+test_extractShortTextVertical                           2.5
+test_extractLongTextHorizontal                          2.5
+test_extractLongTextVertical                            2.5
+
+(Images)
+test_embedGrayImageHorizontal                           7.5
+test_embedGrayImageVertical                             7.5
+test_extractGrayImageHorizontal                         7.5
+test_extractGrayImageVertical                           7.5
+test_embedColorImageHorizontal                          7.5
+test_embedColorImageVertical                            7.5
+test_extractColorImageHorizontal                        7.5
+test_extractColorImageVertical                          7.5
+
+(Verification)
+test_shortTextXml                                       1.0
+test_longTextXml                                        1.0
+test_grayImageXml                                       1.0
+test_colorImageXml                                      1.0
+test_badMessageInitializerWithMissingArgument           1.0
+test_badMessageInitializerWithWrongMessageType          1.0
+test_badMessageInitializerWithEmptyMessageType          1.0
+test_badMessageInitializerWithEmptyFilePath             1.0
+test_badMessageInitializerWithEmptyXmlString            1.0
+test_badSavingGrayImageToText                           1.0
+test_badSavingColorImageToText                          1.0
+test_badSavingTextToGrayImage                           1.0
+test_badMediumInitializerWithInvalidDirection           1.0
+test_badMediumInitializerWithColorImage                 1.0
+test_embedLargeMessageInSmallMedium                     1.0
+test_embedHorizontalExtractVertical                     1.0
+test_embedVerticalExtractHorizontal                     1.0
+                                                    ------------
+Total from test cases                                  97.0
+Bonus for everyone                                      3.0
+                                                    ------------
+Total Score                                           100.0
