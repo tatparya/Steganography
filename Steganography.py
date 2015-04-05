@@ -4,6 +4,8 @@ __author__ = 'ee364h05'
 import sys
 import os
 import base64
+import re
+from PIL import Image
 
 #   Message Class
 class Message:
@@ -15,6 +17,8 @@ class Message:
         numParameters = len( kwargs )
 
         self.XMLString = ""
+        self.message = ""
+        self.messageType = ""
 
         #   Check for type
         if numParameters == 1:
@@ -22,20 +26,39 @@ class Message:
             #   1.  filePath:       Path to load message file
             #   2.  messageType:    Type of message(Text, GrayImage, ColorImage)
 
+            #   Get arguments
             filePath = kwargs[0]
             messageType = kwargs[1]
+            self.messageType = messageType
+
             #   Check for argument type
             if ( filePath is str and messageType is str ):
                 #   Check for messageType
-                if messageType == "Text" or messageType == "GrayImage" or messageType == "ColorImage":
-                    #   Get message
+                if messageType == "Text":
+                    #   Get text message
                     with open( filePath,'r' ) as inputFile:
                         message = inputFile.readlines()
-                        self.message = message
-                        self.messageType = messageType
+                        #   Encode message
+                        self.encodedMessage = base64.b64encode( message )
+                        #   Create XML String
+                        self.XMLString = self.getXmlString()
+
+                elif messageType == "GrayImage" or messageType == "ColorImage":
+                    #   Open image
+                    im = Image.open( filePath )
+                    #   Get pixel list
+                    pixelList = self.rasterScan( im )
+                    #   Encode message
+                    self.encodedMessage = self.encodePixelList( pixelList )
+                    #   Get image size
+                    self.imgSize = im.size
+                    #   Create XML String
+                    self.XMLString = self.getXmlString()
+
                 else:
                     #   Raise error
                     raise ValueError( "Message type is not acceptable" )
+
             else:
                 #   Raise error
                 raise ValueError( "Arguments are not of the correct type. Expected: string, string" )
@@ -48,6 +71,14 @@ class Message:
             if ( XMLString is str ):
                 #   Get message from XML
                 self.XMLString = XMLString
+                #   Get encoded message
+                self.encodedMessage = self.getMessageFromXML()
+                #   Get message type
+                self.messageType = self.getMessageTypeFromXML()
+                #   Check for messageType
+                if not ( messageType == "Text" or messageType == "GrayImage" or messageType == "ColorImage" ):
+                    #   Raise error
+                    raise ValueError( "Invalid message type" )
             else:
                 #   Raise error
                 raise ValueError( "Argument is not of the correct type. Expected: string" )
@@ -61,20 +92,54 @@ class Message:
     #   Function to get message size of current XML representation
     #   Parameters: None
     def getMessageSize(self):
-        length = len( self.XMLString )
+        string = self.XMLString
+        length = len( string )
         return length
 
     #   Function to save message to image
     #   Parameters: 1
     #   1.  targetImagePath: Target path to image file
     def saveToImage(self, targetImagePath):
-        pass
+        if not self.getXmlString():
+            #   Raise error
+            raise Exception( "No data exists in instance" )
+
+        #   Get image size
+        size = self.getSizeFromXML()
+
+        #   Check message type
+        if self.messageType == "GrayImage":
+            image = Image.new( 'L', size, "black" )
+        elif self.messageType == "ColorImage":
+            image = Image.new( 'RGB', size, "black" )
+        else:
+            #   Raise error
+            raise TypeError( "Message is not text type" )
+
+        self.createImageFromMessage( image )
+
+        #   Save image
+        image.save( targetImagePath )
 
     #   Function to save message to text file
     #   Parameters: 1
     #   1.  targetTextFilePath: Target path to text file
     def saveToTextFile(self, targetTextFilePath):
-        pass
+        #   Check message type
+        if not self.messageType == "Text":
+            #   Raise error
+            raise TypeError( "Message is not text type" )
+        #   Get message string from encoded message
+        message = self.getTextMessage()
+        if message:
+            #   Write to file
+            fp = open( targetTextFilePath, 'wb' )
+            fp.write( message )
+            fp.close()
+            pass
+        else:
+            #   Raise error
+            raise Exception( "No data exists in instance")
 
     #   Function to call save message to target based on target type
     #   Parameters: 1
@@ -88,12 +153,99 @@ class Message:
             #   Image message
             self.saveToImage( targetPath )
 
-    #   Function to get XML string
+    #   Function returns serialized XML String
     #   Parameters: None
-    def getXmlString(self):
-        pass
+    def getXmlString(self ):
+        messageType = self.messageType
+        encodedMessage = self.encodedMessage
+        if messageType == "Text":
+            size = len( encodedMessage )
+        else:
+            size = "{0},{1}".format( self.imgSize[0], self.imgSize[1] )
+        if encodedMessage:
+            retString = "<?xml version=\"1.0\" encoding =\"UTF-8\"?>\n<message type=\"{0}\" size=\"{1}\" encrypted=\"\">\n{2}\n</message>".format( messageType, size, encodedMessage )
+            return retString
+        else:
+            raise Exception( "No data exists in instance" )
 
     ###     Helper Functions
+
+    #   Function to create pixel map from message
+    def createImageFromMessage(self, image):
+        #   Get message
+        encodedMessage = self.getMessageFromXML()   #    Gives encoded message
+        messageBinaryArray = base64.b64decode( encodedMessage ) #    Gives bytearray
+
+        pixelMap = image.load()
+        #   Modify pixels
+        for i in range( image.size[0] ):
+            for j in range( image.size[1] ):
+                pixelMap[ i,j ] = messageBinaryArray[ i * image.size[1] + j ]
+
+    #   Function to return decoded text message string
+    #   Parameters: None
+    def getTextMessage(self):
+        if self.encodedMessage:
+            message = base64.b64decode( self.encodedMessage )
+            return message
+        else:
+            return None
+
+    #   Function to get message from the xmlString
+    #   Parameters: None
+    def getMessageFromXML(self):
+        string = self.XMLString
+        match = re.findall( r"<message.*?>(.*)</message>", string )
+        if match:
+            encodedMessage = match[0]
+            return encodedMessage
+        else:
+            return None
+
+    #   Function to get message type from the xmlString
+    #   Parameters: None
+    def getMessageTypeFromXML(self):
+        string = self.XMLString
+        match = re.findall( r"message type=\"(.*)\"", string )
+        if match:
+            messageType = match[0]
+            return messageType
+        else:
+            return None
+
+    #   Function to get message size from the xmlString
+    #   Parameters: None
+    def getSizeFromXML(self):
+        string = self.XMLString
+        match = re.findall( r"size=\"(.*),(.*)\"", string )
+        if match:
+            size = ( match[0], match[1] )
+            return size
+        else:
+            return None
+
+    #   Function to raster scan image and return serialized list of pixels
+    #   Parameters: 1
+    #   1.  image:          Image object to be scanned
+    def rasterScan(self, image):
+        pixelData = image.load()
+        pixelList = []
+
+        #   Make list from pixel map
+        for i in range( image.size[0] ):
+            for j in range( image.size[1] ):
+                pixelList.append( pixelData[ i,j ] )
+
+        return pixelList
+
+    #   Function to return encoded image message
+    #   Parameters: 1
+    #   1.  pixelList:      List of pixels to be encoded
+    def encodePixelList(self, pixelList):
+        binaryPixelArray = bytearray( pixelList )
+        encodedMessage = base64.b64encode( binaryPixelArray )
+
+        return encodedMessage
 
 #   Steganography Class
 class Steganography:
@@ -123,10 +275,30 @@ class Steganography:
     ###     Helper Functions
 
 
+def getImageFile(imageFilePath):
 
+    fp = open("new.png", "wb")
+    im = Image.open("bridgeTest.png")
+    print (im.format, im.size, im.mode)
+    pixels = im.load()
+
+    #   Get pixels in a list
+    pixelList = []
+
+    for i in range( im.size[0] ):
+        pixelRows = []
+        for j in range( im.size[1] ):
+            pixelRows.append( pixels[i,j] )
+        pixelList.append( pixelRows )
+
+    for rows in pixelList:
+        print( rows )
+    im.show()
+    return im
 
 #   Main Block
 def main():
+    im = getImageFile("bridge.png")
     pass
 
 if __name__ == "__main__":
