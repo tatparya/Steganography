@@ -70,6 +70,9 @@ def makeImg():
 
 def openImg():
     newIm = Image.open( "testing.png")
+    data = newIm.getdata()
+
+    print( data[4])
     print( newIm.format, newIm.size, newIm.mode )
     return newIm
 
@@ -127,7 +130,8 @@ def getEncoded():
 
 #   Main Block
 def main():
-    baseEncode()
+    #baseEncode()
+    openImg()
     #baseDecode()
     #im = getImageFile("bridge.png")
     #makeImg()

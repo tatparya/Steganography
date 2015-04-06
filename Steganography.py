@@ -41,7 +41,7 @@ class Message:
                 #   Encode message
                 self.encodedMessage = base64.b64encode( x )
                 #   Create XML String
-                #self.XMLString = self.getXmlString()
+                self.XMLString = self.getXmlString()
 
             elif messageType == "GrayImage" or messageType == "ColorImage":
                 #   Open image
@@ -203,7 +203,6 @@ class Message:
             encodedMessage = match[0]
             return encodedMessage
         else:
-            raise Exception("No message matched")
             return None
 
     #   Function to get message type from the xmlString
@@ -265,7 +264,41 @@ class Steganography:
     #   1.  imagePath:      Path to image file
     #   2.  direction:      Direction to use for medium
     def __init__(self, imagePath, direction='horizontal'):
-        pass
+        #   Try to open image
+        try:
+            self.image = Image.open( imagePath )
+            self.size = self.image.size
+            self.direction = direction
+            #   Load pixelMap
+            pixelMap = self.image.load()
+        except:
+            raise ValueError( "Invalid path to image file")
+
+        #   Check image type
+        if self.image.mode != "L":
+            #   Raise error
+            raise TypeError( "Image is not a GrayImage" )
+
+        #   Raster Scan
+        self.pixelList = []
+        if direction == "horizontal":
+            for i in range( self.size[0] ):
+                for j in range( self.size[1] ):
+                    self.pixelList.append( pixelMap[ i,j ] )
+        elif direction == "vertical":
+            for j in range( self.size[1] ):
+                for i in range( self.size[0] ):
+                    self.pixelList.append( pixelMap[ i,j ] )
+        else:
+            raise ValueError( "Scanning direction invalid")
+
+        self.pixelData = bytearray( pixelList )
+        print( self.pixelData )
+        print( self.pixelList )
+
+        #   Get max message size that can be stored
+        self.maxMessageSize = self.image.size[0] * self.image.size[1] / 8
+        print( int( self.maxMessageSize ) )
 
     ###     Member Functions
 
@@ -273,8 +306,29 @@ class Steganography:
     #   Parameters: 2
     #   1.  message:            Message to be embedded
     #   2.  targetImagePath:    Target path to image
-    def embedMessageInMedium(self):
-        pass
+    def embedMessageInMedium(self, message, targetImagePath):
+        xmlString = message.getXmlString()
+        size = message.getMessageSize()
+        #   Check if message can fit in medium
+        if size > self.maxMessageSize:
+            #raise ValueError( "Message is larget than what the medium can hold" )
+            pass
+
+        pixelCount = 0
+        #   Get each symbol in string
+        for letter in xmlString:
+            for i in range(8):
+                #   Gets each bit
+                bit = ( ord(letter) >> i ) & 1
+                #   Embed bit in message
+                if bit == 0:
+                    if self.pixelList[ pixelCount ] % 2 != 0:
+                        self.pixelList[ pixelCount ] += 1
+                elif bit == 1:
+                    if self.pixelList[ pixelCount ] % 2 == 0:
+                        self.pixelList[ pixelCount ] -= 1
+                pixelCount += 1
+
 
     #   Function to extract message from medium
     #   Parameters: None
@@ -286,15 +340,12 @@ class Steganography:
 
 #   Main Block
 def main():
-    mes = Message( filePath="testtxt.txt", messageType="Text" )
-    print( mes.getXmlString() )
-    print( mes.getTextMessage() )
-    mes.saveToTarget( "testingTxtSave.txt" )
+
     #mes = Message( filePath="testing.png", messageType="GrayImage" )
     #print( mes )
     #print( mes.getMessageSize() )
     #print( mes.getXmlString() )
-    de = mes.saveToTarget( "testSave2.png" )
+    #de = mes.saveToTarget( "testSave2.png" )
     pass
 
 if __name__ == "__main__":
