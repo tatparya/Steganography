@@ -74,7 +74,7 @@ class Message:
             #   Get message type
             self.messageType = self.getMessageTypeFromXML()
             #   Check for messageType
-            if not ( messageType == "Text" or messageType == "GrayImage" or messageType == "ColorImage" ):
+            if self.messageType not in [ "Text", "GrayImage", "ColorImage" ]:
                 #   Raise error
                 raise ValueError( "Invalid message type" )
 
@@ -270,7 +270,7 @@ class Steganography:
             self.size = self.image.size
             self.direction = direction
             #   Load pixelMap
-            pixelMap = self.image.load()
+            self.pixelMap = self.image.load()
         except:
             raise ValueError( "Invalid path to image file")
 
@@ -284,17 +284,17 @@ class Steganography:
         if direction == "horizontal":
             for i in range( self.size[0] ):
                 for j in range( self.size[1] ):
-                    self.pixelList.append( pixelMap[ i,j ] )
+                    self.pixelList.append( self.pixelMap[ i,j ] )
         elif direction == "vertical":
             for j in range( self.size[1] ):
                 for i in range( self.size[0] ):
-                    self.pixelList.append( pixelMap[ i,j ] )
+                    self.pixelList.append( self.pixelMap[ i,j ] )
         else:
             raise ValueError( "Scanning direction invalid")
 
-        self.pixelData = bytearray( pixelList )
-        print( self.pixelData )
-        print( self.pixelList )
+        self.pixelData = bytearray( self.pixelList )
+        #print( self.pixelData )
+        #print( self.pixelList )
 
         #   Get max message size that can be stored
         self.maxMessageSize = self.image.size[0] * self.image.size[1] / 8
@@ -317,9 +317,86 @@ class Steganography:
         pixelCount = 0
         #   Get each symbol in string
         for letter in xmlString:
+            print( letter, ": ", ord(letter ))
             for i in range(8):
                 #   Gets each bit
-                bit = ( ord(letter) >> i ) & 1
+                bit = ( ord(letter) >> 8-i-1 ) & 1
+                print( bit, ": ", 8-i-1 )
+                #   Embed bit in message
+                if pixelCount > self.maxMessageSize:
+                    return
+                if bit == 0:
+                    if self.pixelList[ pixelCount ] % 2 != 0:
+                        self.pixelList[ pixelCount ] += 1
+                elif bit == 1:
+                    if self.pixelList[ pixelCount ] % 2 == 0:
+                        self.pixelList[ pixelCount ] -= 1
+                pixelCount += 1
+
+        #   Save the iamge to target path
+        self.modifyPixData()
+        self.image.save( targetImagePath )
+
+    #   Function to extract message from medium
+    #   Parameters: None
+    def extractMessageFromMedium(self):
+        #   Read pixelData
+        byteList = []
+        byteString = ""
+        if self.direction == "horizontal":
+            for i in range( self.image.size[0] ):   #   self.image.size[0]
+                for j in range( self.image.size[1] ): #   self.image.size[1]
+                    #   Get LSB
+                    print( "i: ", i, "j: ", j, "pixel: ", self.pixelMap[ i,j ] )
+                    if self.pixelMap[ i,j ] % 2 == 0:
+                        lsb = '0'
+                    else:
+                        lsb = '1'
+                    byteString += lsb
+                    if len( byteString ) == 8:
+                        byteList.append( byteString )
+                        byteString = ""
+
+        #   ByteList gets all of the bytes
+        print( byteList )
+
+        #   Get extracted String
+        extractedString = ""
+        for byte in byteList:
+
+            charecter = chr( int(byte, 2) )
+            extractedString += charecter
+
+        #print( byteList )
+        print( extractedString )
+
+        #   Check if valid message
+        match = re.findall( r"(<\?xml.*\n*.*\n.*\n.*</message>)", extractedString )
+        print( len(match) )
+        if match:
+            #   Message is valid
+            self.message = Message( XmlString=match[0] )
+            print( self.message )
+
+    ###     Helper Functions
+
+    def embedCustomMessage(self, messageStr, targetImagePath ):
+        size = len( messageStr )
+        #   Check if message can fit in medium
+        if size > self.maxMessageSize:
+            #raise ValueError( "Message is larget than what the medium can hold" )
+            pass
+
+        print( "Embedding: ", messageStr )
+
+        pixelCount = 0
+        #   Get each symbol in string
+        for letter in messageStr:
+            print( letter, ": ", ord(letter ))
+            for i in range(8):
+                #   Gets each bit
+                bit = ( ord(letter) >> 8-i-1 ) & 1
+                print( bit, ": ", 8-i-1 )
                 #   Embed bit in message
                 if bit == 0:
                     if self.pixelList[ pixelCount ] % 2 != 0:
@@ -329,14 +406,23 @@ class Steganography:
                         self.pixelList[ pixelCount ] -= 1
                 pixelCount += 1
 
+        #   Save the iamge to target path
+        self.modifyPixData()
+        self.image.save( targetImagePath )
 
-    #   Function to extract message from medium
-    #   Parameters: None
-    def extractMessageFromMedium(self):
-        pass
+    def modifyPixData(self):
+        #   Get direction
+        direction = self.direction
 
-    ###     Helper Functions
+        if direction == "horizontal":
+            for i in range( self.image.size[0] ):
+                for j in range( self.image.size[1] ):
+                    self.pixelMap[ i,j ] = self.pixelList[ i * self.image.size[0] + j ]
 
+        elif direction == "vertical":
+            for j in range( self.image.size[1] ):
+                for i in range( self.image.size[0] ):
+                    self.pixelMap[ i,j ] = self.pixelList[ j * self.image.size[1] + i ]
 
 #   Main Block
 def main():

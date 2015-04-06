@@ -9,8 +9,13 @@ def main():
     #mes.saveToTarget( "testingTxtSave.txt" )
 
     #   Testing steg class
-    image = Steganography.Steganography( "testing.png", "vertical" )
-    image.embedMessageInMedium( mes, "testingEmbed.png" )
+    image = Steganography.Steganography( "mona_test.png", "horizontal" )
+    image.embedMessageInMedium( mes, "mona_test.png" )
+    #image.embedCustomMessage( "TS", "mona_test.png" )
+    image.extractMessageFromMedium()
+
+    #newimg = Steganography.Steganography( "testingEmbed.png", "horizontal" )
+    #newimg.extractMessageFromMedium()
     pass
 
 if __name__ == "__main__":
