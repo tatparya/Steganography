@@ -7,11 +7,10 @@ import base64
 import re
 from PIL import Image
 
-#   Message Class
+#-------------------   Message Class    ------------------
 class Message:
 
-    ###     Constructor
-
+    #-------------------   Function Overloads    ------------------
 
     def __init__( self, **kwargs ):
         numParameters = len( kwargs )
@@ -21,80 +20,84 @@ class Message:
         self.messageType = ""
 
         #   Check for type
-        if numParameters == 1:
+        if numParameters == 2:
             #   Type 1: two parameters
             #   1.  filePath:       Path to load message file
             #   2.  messageType:    Type of message(Text, GrayImage, ColorImage)
 
             #   Get arguments
-            filePath = kwargs[0]
-            messageType = kwargs[1]
+            filePath = kwargs["filePath"]
+            messageType = kwargs["messageType"]
             self.messageType = messageType
 
-            #   Check for argument type
-            if ( filePath is str and messageType is str ):
-                #   Check for messageType
-                if messageType == "Text":
-                    #   Get text message
-                    with open( filePath,'r' ) as inputFile:
-                        message = inputFile.readlines()
-                        #   Encode message
-                        self.encodedMessage = base64.b64encode( message )
-                        #   Create XML String
-                        self.XMLString = self.getXmlString()
+            #   Check for messageType
+            if messageType == "Text":
+                message = ""
+                #   Get text message
+                fp = open( filePath, 'r' )
+                message = fp.read()
+                x = bytes( message, 'UTF-8' )
+                print( x )
+                #   Encode message
+                self.encodedMessage = base64.b64encode( x )
+                #   Create XML String
+                #self.XMLString = self.getXmlString()
 
-                elif messageType == "GrayImage" or messageType == "ColorImage":
-                    #   Open image
-                    im = Image.open( filePath )
-                    #   Get pixel list
-                    pixelList = self.rasterScan( im )
-                    #   Encode message
-                    self.encodedMessage = self.encodePixelList( pixelList )
-                    #   Get image size
-                    self.imgSize = im.size
-                    #   Create XML String
-                    self.XMLString = self.getXmlString()
-
-                else:
-                    #   Raise error
-                    raise ValueError( "Message type is not acceptable" )
+            elif messageType == "GrayImage" or messageType == "ColorImage":
+                #   Open image
+                im = Image.open( filePath )
+                #   Get pixel list
+                pixelList = self.rasterScan( im )
+                #   Encode message
+                self.encodedMessage = self.encodePixelList( pixelList )
+                #   Get image size
+                self.imgSize = im.size
+                #   Create XML String
+                self.XMLString = self.getXmlString()
 
             else:
                 #   Raise error
-                raise ValueError( "Arguments are not of the correct type. Expected: string, string" )
+                raise ValueError( "Message type is invalid" )
 
-        elif numParameters == 2:
+        elif numParameters == 1:
             #   Type 2: one parameter
             #   1.  XmlString:      Input XML string
             #   Check for argument type
-            XMLString = kwargs[0]
-            if ( XMLString is str ):
-                #   Get message from XML
-                self.XMLString = XMLString
-                #   Get encoded message
-                self.encodedMessage = self.getMessageFromXML()
-                #   Get message type
-                self.messageType = self.getMessageTypeFromXML()
-                #   Check for messageType
-                if not ( messageType == "Text" or messageType == "GrayImage" or messageType == "ColorImage" ):
-                    #   Raise error
-                    raise ValueError( "Invalid message type" )
-            else:
+            try:
+                XMLString = kwargs["XmlString"]
+            except KeyError:
+                raise ValueError( "Missing or invalid arguments" )
+            #   Get message from XML
+            self.XMLString = XMLString
+            #   Get encoded message
+            self.encodedMessage = self.getMessageFromXML()
+            #   Get message type
+            self.messageType = self.getMessageTypeFromXML()
+            #   Check for messageType
+            if not ( messageType == "Text" or messageType == "GrayImage" or messageType == "ColorImage" ):
                 #   Raise error
-                raise ValueError( "Argument is not of the correct type. Expected: string" )
+                raise ValueError( "Invalid message type" )
 
         else:
             #   Raise Error
             raise ValueError("Invalid number of arguments to constructor")
 
-    ###     Member Functions
+    def __str__(self):
+        string = "Encoded Message: {0}\nMessage Type: {1}\nMessage Size: {2}\nXML String: {3}".format( self.encodedMessage, self.messageType, self.getSizeFromXML(), self.XMLString )
+        return string
+
+    #-------------------   Member Functions    ------------------
 
     #   Function to get message size of current XML representation
     #   Parameters: None
     def getMessageSize(self):
-        string = self.XMLString
-        length = len( string )
-        return length
+        if self.XMLString:
+            string = self.XMLString
+            length = len( string )
+            return length
+        else:
+            #   Raise exception
+            raise Exception( "No data exists in instance" )
 
     #   Function to save message to image
     #   Parameters: 1
@@ -163,12 +166,12 @@ class Message:
         else:
             size = "{0},{1}".format( self.imgSize[0], self.imgSize[1] )
         if encodedMessage:
-            retString = "<?xml version=\"1.0\" encoding =\"UTF-8\"?>\n<message type=\"{0}\" size=\"{1}\" encrypted=\"\">\n{2}\n</message>".format( messageType, size, encodedMessage )
+            retString = "<?xml version=\"1.0\" encoding =\"UTF-8\"?>\n<message type=\"{0}\" size=\"{1}\" encrypted=\"False\">\n{2}\n</message>".format( messageType, size, str(encodedMessage)[2:-1] )
             return retString
         else:
             raise Exception( "No data exists in instance" )
 
-    ###     Helper Functions
+    #-------------------   Helper Functions    ------------------
 
     #   Function to create pixel map from message
     def createImageFromMessage(self, image):
@@ -195,18 +198,19 @@ class Message:
     #   Parameters: None
     def getMessageFromXML(self):
         string = self.XMLString
-        match = re.findall( r"<message.*?>(.*)</message>", string )
+        match = re.findall( r"<message.*>\n(.*)\n</message>", string )
         if match:
             encodedMessage = match[0]
             return encodedMessage
         else:
+            raise Exception("No message matched")
             return None
 
     #   Function to get message type from the xmlString
     #   Parameters: None
     def getMessageTypeFromXML(self):
         string = self.XMLString
-        match = re.findall( r"message type=\"(.*)\"", string )
+        match = re.findall( r"message type=\"(.*)\" size", string )
         if match:
             messageType = match[0]
             return messageType
@@ -217,9 +221,14 @@ class Message:
     #   Parameters: None
     def getSizeFromXML(self):
         string = self.XMLString
-        match = re.findall( r"size=\"(.*),(.*)\"", string )
+        match = re.findall( r"size=\"(.*)\" encrypted", string )
         if match:
-            size = ( match[0], match[1] )
+            if self.messageType == "Text":
+                size = match[0]
+            else:
+                numbers = re.findall( r"(.*),(.*)", match[0] )
+                if numbers:
+                    size = ( int(numbers[0][0]), int(numbers[0][1]) )
             return size
         else:
             return None
@@ -275,30 +284,17 @@ class Steganography:
     ###     Helper Functions
 
 
-def getImageFile(imageFilePath):
-
-    fp = open("new.png", "wb")
-    im = Image.open("bridgeTest.png")
-    print (im.format, im.size, im.mode)
-    pixels = im.load()
-
-    #   Get pixels in a list
-    pixelList = []
-
-    for i in range( im.size[0] ):
-        pixelRows = []
-        for j in range( im.size[1] ):
-            pixelRows.append( pixels[i,j] )
-        pixelList.append( pixelRows )
-
-    for rows in pixelList:
-        print( rows )
-    im.show()
-    return im
-
 #   Main Block
 def main():
-    im = getImageFile("bridge.png")
+    mes = Message( filePath="testtxt.txt", messageType="Text" )
+    print( mes.getXmlString() )
+    print( mes.getTextMessage() )
+    mes.saveToTarget( "testingTxtSave.txt" )
+    #mes = Message( filePath="testing.png", messageType="GrayImage" )
+    #print( mes )
+    #print( mes.getMessageSize() )
+    #print( mes.getXmlString() )
+    de = mes.saveToTarget( "testSave2.png" )
     pass
 
 if __name__ == "__main__":
