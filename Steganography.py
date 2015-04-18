@@ -34,10 +34,12 @@ class Message:
             if messageType == "Text":
                 message = ""
                 #   Get text message
-                fp = open( filePath, 'r' )
+                try:
+                    fp = open( filePath, 'r' )
+                except:
+                    raise ValueError( "File path invalid" )
                 message = fp.read()
                 x = bytes( message, 'UTF-8' )
-                print( x )
                 #   Encode message
                 self.encodedMessage = base64.b64encode( x )
                 #   Create XML String
@@ -47,7 +49,10 @@ class Message:
                 #   Open image
                 im = Image.open( filePath )
                 #   Get pixel list
-                pixelList = self.rasterScan( im )
+                if messageType == "GrayImage":
+                    pixelList = self.rasterScanGray( im )
+                else:
+                    pixelList = self.rasterScanColor( im )
                 #   Encode message
                 self.encodedMessage = self.encodePixelList( pixelList )
                 #   Get image size
@@ -66,6 +71,9 @@ class Message:
             try:
                 XMLString = kwargs["XmlString"]
             except KeyError:
+
+
+
                 raise ValueError( "Missing or invalid arguments" )
             #   Get message from XML
             self.XMLString = XMLString
@@ -103,7 +111,7 @@ class Message:
     #   Parameters: 1
     #   1.  targetImagePath: Target path to image file
     def saveToImage(self, targetImagePath):
-        if not self.getXmlString():
+        if not self.XMLString:
             #   Raise error
             raise Exception( "No data exists in instance" )
 
@@ -162,11 +170,11 @@ class Message:
         messageType = self.messageType
         encodedMessage = self.encodedMessage
         if messageType == "Text":
-            size = len( encodedMessage )
+            size = len( base64.b64decode( encodedMessage ) )
         else:
             size = "{0},{1}".format( self.imgSize[0], self.imgSize[1] )
         if encodedMessage:
-            retString = "<?xml version=\"1.0\" encoding =\"UTF-8\"?>\n<message type=\"{0}\" size=\"{1}\" encrypted=\"False\">\n{2}\n</message>".format( messageType, size, str(encodedMessage)[2:-1] )
+            retString = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message type=\"{0}\" size=\"{1}\" encrypted=\"False\">\n{2}\n</message>".format( messageType, size, str(encodedMessage)[2:-1] )
             return retString
         else:
             raise Exception( "No data exists in instance" )
@@ -180,10 +188,30 @@ class Message:
         messageBinaryArray = base64.b64decode( encodedMessage ) #    Gives bytearray
 
         pixelMap = image.load()
+
         #   Modify pixels
-        for i in range( image.size[0] ):
-            for j in range( image.size[1] ):
-                pixelMap[ i,j ] = messageBinaryArray[ i * image.size[1] + j ]
+        if self.messageType == "GrayImage":
+            image.putdata( messageBinaryArray )
+         #   for row in range( image.size[1] ):
+          #      for col in range( image.size[0] ):
+           #         pixelMap[ col,row ] = messageBinaryArray[ row * image.size[1] + col ]
+
+        if self.messageType == "ColorImage":
+            #   Create sequences for rgb
+            sequence = []
+            size = ( image.size[0] * image.size[1] )
+            for row in range( image.size[1] ):
+                for col in range( image.size[0] ):
+                    red = messageBinaryArray[ row * image.size[1] + col ]
+                    green = messageBinaryArray[ size + row * image.size[1] + col ]
+                    blue = messageBinaryArray[ size * 2 + row * image.size[1] + col ]
+                    sequence.append( (red, green, blue) )
+            image.putdata( sequence )
+        #    size = ( image.size[0] * image.size[1] )
+         #   for row in range( image.size[1] ):
+          #      for col in range( image.size[0] ):
+           #         pixelMap[ col,row ] = ( messageBinaryArray[ row * image.size[1] + col ], messageBinaryArray[ size + row * image.size[1] + col ], messageBinaryArray[ size * 2 + row * image.size[1] + col ] )
+
 
     #   Function to return decoded text message string
     #   Parameters: None
@@ -235,14 +263,33 @@ class Message:
     #   Function to raster scan image and return serialized list of pixels
     #   Parameters: 1
     #   1.  image:          Image object to be scanned
-    def rasterScan(self, image):
+    def rasterScanGray(self, image):
         pixelData = image.load()
         pixelList = []
 
         #   Make list from pixel map
-        for i in range( image.size[0] ):
-            for j in range( image.size[1] ):
-                pixelList.append( pixelData[ i,j ] )
+        for row in range( image.size[1] ):
+            for col in range( image.size[0] ):
+                pixelList.append( pixelData[ col,row ] )
+
+        return pixelList
+
+    def rasterScanColor(self, image):
+        pixelData = image.load()
+        pixelList = []
+
+        #   Make list from pixel map
+        for row in range( image.size[1] ):
+            for col in range( image.size[0] ):
+                pixelList.append( pixelData[ col,row ][0] )
+
+        for row in range( image.size[1] ):
+            for col in range( image.size[0] ):
+                pixelList.append( pixelData[ col,row ][1] )
+
+        for row in range( image.size[1] ):
+            for col in range( image.size[0] ):
+                pixelList.append( pixelData[ col,row ][2] )
 
         return pixelList
 
@@ -279,26 +326,9 @@ class Steganography:
             #   Raise error
             raise TypeError( "Image is not a GrayImage" )
 
-        #   Raster Scan
-        self.pixelList = []
-        if direction == "horizontal":
-            for i in range( self.size[0] ):
-                for j in range( self.size[1] ):
-                    self.pixelList.append( self.pixelMap[ i,j ] )
-        elif direction == "vertical":
-            for j in range( self.size[1] ):
-                for i in range( self.size[0] ):
-                    self.pixelList.append( self.pixelMap[ i,j ] )
-        else:
-            raise ValueError( "Scanning direction invalid")
-
-        self.pixelData = bytearray( self.pixelList )
-        #print( self.pixelData )
-        #print( self.pixelList )
-
         #   Get max message size that can be stored
         self.maxMessageSize = self.image.size[0] * self.image.size[1] / 8
-        print( int( self.maxMessageSize ) )
+        #print( int( self.maxMessageSize ) )
 
     ###     Member Functions
 
@@ -307,35 +337,72 @@ class Steganography:
     #   1.  message:            Message to be embedded
     #   2.  targetImagePath:    Target path to image
     def embedMessageInMedium(self, message, targetImagePath):
-        xmlString = message.getXmlString()
+        
         size = message.getMessageSize()
-        #   Check if message can fit in medium
         if size > self.maxMessageSize:
-            #raise ValueError( "Message is larget than what the medium can hold" )
-            pass
+            raise ValueError( "Message is larget than what the medium can hold" )
+        bitString = ""
 
-        pixelCount = 0
-        #   Get each symbol in string
-        for letter in xmlString:
-            print( letter, ": ", ord(letter ))
-            for i in range(8):
-                #   Gets each bit
-                bit = ( ord(letter) >> 8-i-1 ) & 1
-                print( bit, ": ", 8-i-1 )
-                #   Embed bit in message
-                if pixelCount > self.maxMessageSize:
-                    return
-                if bit == 0:
-                    if self.pixelList[ pixelCount ] % 2 != 0:
-                        self.pixelList[ pixelCount ] += 1
-                elif bit == 1:
-                    if self.pixelList[ pixelCount ] % 2 == 0:
-                        self.pixelList[ pixelCount ] -= 1
-                pixelCount += 1
+        #   Gets stream of bits
+        for character in message.XMLString:
+            bitString += self.getbitString(character)
 
-        #   Save the iamge to target path
-        self.modifyPixData()
-        self.image.save( targetImagePath )
+        #   Get image parameters
+        imageWitdh, imageHeight = self.image.size
+        pixelList = list(self.image.getdata())
+
+        #   Get direction
+        if self.direction == "horizontal":
+            pixCount = 0
+            #   Bit manipulation
+            for i in bitString:
+                if i == '1':
+                    if pixelList[ pixCount ] % 2 == 0:
+                        pixelList[ pixCount ] += 1
+                        if pixelList[ pixCount ] >= 256:
+                            pixelList[ pixCount ] -=    2
+                elif i == '0':
+                    if pixelList[ pixCount ] % 2 == 1:
+                        pixelList[ pixCount ] -= 1
+                        if pixelList[ pixCount ] < 0:
+                            pixelList[ pixCount ] += 2
+                pixCount += 1
+        else:
+            newMessageList = []
+            #   For vertical scan
+            #   Iterate through message list and create new
+            for row in range( imageWitdh ):
+                for col in range( imageHeight ):
+                    newMessageList.append( pixelList[ col * imageWitdh + row ] )
+            # make message_list point to newMessageList
+            pixelList = newMessageList
+
+            pixCount = 0
+            for i in bitString:
+                #   Bit manipulation
+                if i == '1':
+                    if pixelList[ pixCount ] % 2 == 0:
+                        pixelList[ pixCount ] += 1
+                        if pixelList[ pixCount ] >= 256:
+                            pixelList[ pixCount ] -= 2
+                elif i == '0':
+                    if pixelList[ pixCount ] % 2 == 1:
+                        pixelList[ pixCount ] -= 1
+                        if pixelList[ pixCount ] < 0:
+                            pixelList[ pixCount ] += 2
+                pixCount += 1
+
+            newMessageList = []
+            #   For vertical scan go through list again and create new to transpose
+
+            for row in range(imageHeight):
+                for col in range(imageWitdh):
+                    newMessageList.append( pixelList[col*imageHeight + row] )
+            # make message_list point to newMessageList
+            pixelList = newMessageList
+
+        image = Image.frombuffer('L', (imageWitdh,imageHeight), bytearray(pixelList), "raw", 'L', 0, 1)
+        image.save(targetImagePath)
 
     #   Function to extract message from medium
     #   Parameters: None
@@ -343,12 +410,29 @@ class Steganography:
         #   Read pixelData
         byteList = []
         byteString = ""
+
+        #---------------------- HORIZONTAL SCAN   ----------------------
+
         if self.direction == "horizontal":
-            for i in range( self.image.size[0] ):   #   self.image.size[0]
-                for j in range( self.image.size[1] ): #   self.image.size[1]
+            for row in range( self.image.size[1] ):
+                for col in range( self.image.size[0] ):
                     #   Get LSB
-                    print( "i: ", i, "j: ", j, "pixel: ", self.pixelMap[ i,j ] )
-                    if self.pixelMap[ i,j ] % 2 == 0:
+                    if self.pixelMap[ col, row ] % 2 == 0:
+                        lsb = '0'
+                    else:
+                        lsb = '1'
+                    byteString += lsb
+                    if len( byteString ) == 8:
+                        byteList.append( byteString )
+                        byteString = ""
+
+        #---------------------- VERTICAL SCAN   ----------------------
+
+        elif self.direction == "vertical":
+            for col in range( self.image.size[0] ):
+                for row in range( self.image.size[1] ):
+                    #   Get LSB
+                    if self.pixelMap[ col, row ] % 2 == 0:
                         lsb = '0'
                     else:
                         lsb = '1'
@@ -358,27 +442,39 @@ class Steganography:
                         byteString = ""
 
         #   ByteList gets all of the bytes
-        print( byteList )
+        #print( byteList )
 
         #   Get extracted String
         extractedString = ""
         for byte in byteList:
 
-            charecter = chr( int(byte, 2) )
-            extractedString += charecter
+            character = chr( int(byte, 2) )
+            extractedString += character
 
-        #print( byteList )
-        print( extractedString )
+        #print( extractedString )
 
         #   Check if valid message
         match = re.findall( r"(<\?xml.*\n*.*\n.*\n.*</message>)", extractedString )
-        print( len(match) )
+        #print( len(match) )
         if match:
             #   Message is valid
             self.message = Message( XmlString=match[0] )
-            print( self.message )
+            #print( "Extracted Message:")
+            #print( self.message )
+            return self.message
 
     ###     Helper Functions
+
+    def getbitString(self, ch):
+        # ch is a character whose binary value must be returned
+        intVal = ord(ch)
+        bitString = ""
+        while intVal != 0:
+            bitString = str( int(intVal % 2) ) + bitString
+            intVal = int(intVal / 2)
+        while len(bitString) != 8:
+            bitString = '0' + bitString
+        return bitString
 
     def embedCustomMessage(self, messageStr, targetImagePath ):
         size = len( messageStr )
@@ -392,11 +488,11 @@ class Steganography:
         pixelCount = 0
         #   Get each symbol in string
         for letter in messageStr:
-            print( letter, ": ", ord(letter ))
+            #print( letter, ": ", ord(letter ))
             for i in range(8):
                 #   Gets each bit
                 bit = ( ord(letter) >> 8-i-1 ) & 1
-                print( bit, ": ", 8-i-1 )
+                #print( bit, ": ", 8-i-1 )
                 #   Embed bit in message
                 if bit == 0:
                     if self.pixelList[ pixelCount ] % 2 != 0:
@@ -408,21 +504,28 @@ class Steganography:
 
         #   Save the iamge to target path
         self.modifyPixData()
-        self.image.save( targetImagePath )
+        targetImage.save( targetImagePath )
+        print( "Here!!")
 
-    def modifyPixData(self):
+    def modifyPixData(self, targetImage ):
         #   Get direction
         direction = self.direction
+        pixelMap = targetImage.load()
+
+        #if direction == "horizontal":
+        #    targetImage.putdata( self.pixelList )
+        #elif direction == "vertical":
+        #    targetImage.putdata( self.pixelList )
 
         if direction == "horizontal":
-            for i in range( self.image.size[0] ):
-                for j in range( self.image.size[1] ):
-                    self.pixelMap[ i,j ] = self.pixelList[ i * self.image.size[0] + j ]
+            for row in range( self.image.size[1] ):
+                for col in range( self.image.size[0] ):
+                    pixelMap[ col,row ] = self.pixelList[ row * self.image.size[1] + col ]
 
         elif direction == "vertical":
-            for j in range( self.image.size[1] ):
-                for i in range( self.image.size[0] ):
-                    self.pixelMap[ i,j ] = self.pixelList[ j * self.image.size[1] + i ]
+            for col in range( self.image.size[0] ):
+                for row in range( self.image.size[1] ):
+                    pixelMap[ col,row ] = self.pixelList[ col * self.image.size[0] + row ]
 
 #   Main Block
 def main():

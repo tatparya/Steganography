@@ -69,10 +69,14 @@ def makeImg():
     img.save( "testing.png" )
 
 def openImg():
-    newIm = Image.open( "testing.png")
+    newIm = Image.open( "files/sunflower.png")
     data = newIm.getdata()
 
-    print( data[4])
+    for element in data:
+        print( element )
+
+    print( type(element), type(data))
+
     print( newIm.format, newIm.size, newIm.mode )
     return newIm
 
@@ -128,8 +132,12 @@ def getEncoded():
     print( "Bytearray", binPixArr )
     print( "Encoded", encoded )
 
+def testing():
+    text = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr,  sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet."
+    print( len( text ) )
 #   Main Block
 def main():
+    #testing()
     #baseEncode()
     openImg()
     #baseDecode()
