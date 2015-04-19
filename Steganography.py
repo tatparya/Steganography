@@ -340,12 +340,13 @@ class Steganography:
         
         size = message.getMessageSize()
         if size > self.maxMessageSize:
-            raise ValueError( "Message is larget than what the medium can hold" )
+            raise ValueError( "Message is larger than what the medium can hold" )
+
         bitString = ""
 
-        #   Gets stream of bits
+        #   Create a steam of bits in the message
         for character in message.XMLString:
-            bitString += self.getbitString(character)
+            bitString += self.getBitString(character)
 
         #   Get image parameters
         imageWitdh, imageHeight = self.image.size
@@ -354,40 +355,46 @@ class Steganography:
         #   Get direction
         if self.direction == "horizontal":
             pixCount = 0
-            #   Bit manipulation
-            for i in bitString:
-                if i == '1':
+            #   Bit manipulation: embedding bits into the medium
+            for bit in bitString:
+                if bit == '1':
                     if pixelList[ pixCount ] % 2 == 0:
                         pixelList[ pixCount ] += 1
+                        #   Check overflow
                         if pixelList[ pixCount ] >= 256:
                             pixelList[ pixCount ] -=    2
-                elif i == '0':
+                elif bit == '0':
                     if pixelList[ pixCount ] % 2 == 1:
                         pixelList[ pixCount ] -= 1
+                        #   Check overflow
                         if pixelList[ pixCount ] < 0:
                             pixelList[ pixCount ] += 2
                 pixCount += 1
+
+        #   For vertical scan
         else:
             newMessageList = []
-            #   For vertical scan
-            #   Iterate through message list and create new
+
+            #   Iterate through message list and create new list
             for row in range( imageWitdh ):
                 for col in range( imageHeight ):
                     newMessageList.append( pixelList[ col * imageWitdh + row ] )
-            # make message_list point to newMessageList
+
             pixelList = newMessageList
 
             pixCount = 0
             for i in bitString:
-                #   Bit manipulation
+                #   Bit manipulation: embedding bits into the medium
                 if i == '1':
                     if pixelList[ pixCount ] % 2 == 0:
                         pixelList[ pixCount ] += 1
+                        #   Check overflow
                         if pixelList[ pixCount ] >= 256:
                             pixelList[ pixCount ] -= 2
                 elif i == '0':
                     if pixelList[ pixCount ] % 2 == 1:
                         pixelList[ pixCount ] -= 1
+                        #   Check overflow
                         if pixelList[ pixCount ] < 0:
                             pixelList[ pixCount ] += 2
                 pixCount += 1
@@ -398,11 +405,11 @@ class Steganography:
             for row in range(imageHeight):
                 for col in range(imageWitdh):
                     newMessageList.append( pixelList[col*imageHeight + row] )
-            # make message_list point to newMessageList
+
             pixelList = newMessageList
 
-        image = Image.frombuffer('L', (imageWitdh,imageHeight), bytearray(pixelList), "raw", 'L', 0, 1)
-        image.save(targetImagePath)
+        image = Image.frombuffer( 'L', ( imageWitdh, imageHeight ), bytearray( pixelList ), "raw", 'L', 0, 1 )
+        image.save( targetImagePath )
 
     #   Function to extract message from medium
     #   Parameters: None
@@ -465,16 +472,18 @@ class Steganography:
 
     ###     Helper Functions
 
-    def getbitString(self, ch):
-        # ch is a character whose binary value must be returned
-        intVal = ord(ch)
-        bitString = ""
-        while intVal != 0:
-            bitString = str( int(intVal % 2) ) + bitString
-            intVal = int(intVal / 2)
-        while len(bitString) != 8:
-            bitString = '0' + bitString
-        return bitString
+    #   Function to get an 8-bit binary string representation of a char
+    #   Parameters: char
+    def getBitString(self, char):
+
+        asciiChar = ord( char )
+        binaryChar = str( bin( asciiChar ) )[2:]
+
+        #   If binaryChar is not 8-bit, pad with 0's
+        while len( binaryChar ) < 8:
+            binaryChar = '0' + binaryChar
+
+        return binaryChar
 
     def embedCustomMessage(self, messageStr, targetImagePath ):
         size = len( messageStr )

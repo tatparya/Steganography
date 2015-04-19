@@ -125,6 +125,17 @@ def serializeImg():
 
     return pixelList
 
+def getbitString(char):
+
+    asciiChar = ord( char )
+    binaryChar = str( bin( asciiChar ) )[2:]
+
+    #   If binaryChar is not 8-bit, pad with 0's
+    while len( binaryChar ) < 8:
+        binaryChar = '0' + binaryChar
+
+    return binaryChar
+
 def getEncoded():
     pixList = serializeImg()
     binPixArr = bytearray( pixList )
@@ -137,9 +148,11 @@ def testing():
     print( len( text ) )
 #   Main Block
 def main():
+    print( getbitString('a') )
+
     #testing()
     #baseEncode()
-    openImg()
+    #openImg()
     #baseDecode()
     #im = getImageFile("bridge.png")
     #makeImg()
