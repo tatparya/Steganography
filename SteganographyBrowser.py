@@ -19,6 +19,7 @@ class NewSteganography( Steganography ):
     #   2.  direction:      Direction to use for medium
     def __init__(self, imagePath, direction='horizontal'):
         Steganography.__init__( self, imagePath, direction )
+        self.imagePath = imagePath
 
     # ------------- Member Functions -------------
     #   Function to erase embedded message in medium
@@ -26,16 +27,20 @@ class NewSteganography( Steganography ):
     def wipeMedium(self):
         #   Get image parameters
         imageWidth, imageHeight = self.image.size
+        numPixels = imageWidth * imageHeight
         pixelList = list( self.image.getdata() )
 
         #   Bit manipulation:   Setting LSB to 0
-        for pixel in pixelList:
-            if pixel % 2 == 1:
-                pixel -= 1;
+        for i in range( numPixels ):
+
+            if pixelList[i] % 2 == 1:
+                pixelList[i] -= 1;
 
         #   Save image
         image = Image.frombuffer( 'L', ( imageWidth, imageHeight ), bytearray( pixelList ), 'raw', 'L', 0, 1 )
-        image.save()
+        image.putdata( pixelList )
+        image.save( self.imagePath )
+        print( "Wiped Message" )
 
     #   Function to check if message exists in medium
     #   Parameters: None
@@ -138,14 +143,22 @@ class SteganographyBrowser( QMainWindow, Ui_MainWindow ):
 
         #   Connect Signals
         self.fileTreeWidget.itemClicked.connect( lambda : self.getMessage() )
+        self.btnWipeMedium.clicked.connect( lambda : self.wipeMessage() )
+        self.btnExtract.clicked.connect( lambda : self.getMessageInMedium() )
 
-    # ------------- Initial State -------------
-    def initialize(self, folderPath):
+    def disableAll(self):
         #   Set other views to disabled
         self.viewMedium.setDisabled( True )
         self.stackMessage.setDisabled( True )
         self.btnExtract.setDisabled( True )
         self.btnWipeMedium.setDisabled( True )
+
+    def clearMessageMedium(self):
+        self.viewMessage.setScene( None )
+
+    # ------------- Initial State -------------
+    def initialize(self, folderPath):
+        self.disableAll()
 
         #   Get files in folder
         filesInFolder = glob.glob( "{0}/*".format( folderPath ) )
@@ -153,44 +166,54 @@ class SteganographyBrowser( QMainWindow, Ui_MainWindow ):
         #   Go over every file in folder
         for file in filesInFolder:
 
-            filename = re.findall( r'.*\\(.*)', file )[0]
+            #   Get three widget item
+            item = self.createTreeItem( file )
 
-            #   Create new Tree Widget Item
-            item = QTreeWidgetItem()
-            item.setText( 0, filename )
-            brush = QBrush()
-            font = QFont()
-            font.setBold( True )
-
-            #   Check if image has message
-            img = NewSteganography( file, "horizontal" )
-            res = img.checkIfMessageExists()
-            if res[0]:
-                #   Set brush to red
-                brush.setColor(QColor( 'red' ))
-                #   Set font and color to item
-                item.setFont(0, font)
-                item.setForeground(0, brush)
-
-                #   Create child widget item
-                imageTypeItem = QTreeWidgetItem()
-                #   Set brush to green
-                brush.setColor(QColor('green'))
-                imageTypeItem.setForeground(0, brush)
-                imageTypeItem.setText( 0, res[1] )
-                item.addChild( imageTypeItem )
-
-            else:
-                #   Set brush to blue
-                brush.setColor( QColor('blue') )
-                item.setForeground(0, brush)
-
-            #   Add Item to parent tree
+            #   Add item to parent
             self.fileTreeWidget.addTopLevelItem( item )
             item.setExpanded( True )
 
+    def createTreeItem(self, file):
+
+        filename = re.findall( r'.*\\(.*)', file )[0]
+
+        item = QTreeWidgetItem()
+        item.setText( 0, filename )
+        font = QFont()
+        font.setBold( True )
+
+        #   Check if image has message
+        img = NewSteganography( file, "horizontal" )
+        res = img.checkIfMessageExists()
+
+        if res[0]:
+            #   Set font and color to item
+            item.setFont(0, font)
+            self.changeColor( item, 'red', 0 )
+
+            #   Create child widget item
+            imageTypeItem = QTreeWidgetItem()
+            #   Set color to green
+            self.changeColor( imageTypeItem, 'green', 0 )
+            imageTypeItem.setText( 0, res[1] )
+            item.addChild( imageTypeItem )
+
+        else:
+            #   Set color to blue
+            self.changeColor( item, 'blue', 0 )
+
+        return item
+
+
+
+    def changeColor(self, item, color, column):
+        brush = QBrush()
+        brush.setColor(QColor(color))
+        item.setForeground(column,brush)
+
     def getMessage(self):
         print( "Item Clicked!!" )
+        self.clearMessageMedium()
         item = self.fileTreeWidget.currentItem()
         #   Check if sub child is clicked
         if item.parent():
@@ -198,32 +221,92 @@ class SteganographyBrowser( QMainWindow, Ui_MainWindow ):
         else:
             itemParent = item
 
+        self.selectedItem = itemParent
+
         #   Check if item has message
         imgPath = self.folderPath + "\\" + itemParent.text(0)
-        image = NewSteganography( imagePath=imgPath )
+        self.image = NewSteganography( imagePath=imgPath )
 
-        result = image.checkIfMessageExists()
+        result = self.image.checkIfMessageExists()
         if result[0]:
             #   Message Exists
-            self.embeddedMedium( imgPath, image )
+            self.embeddedMedium( imgPath )
         else:
             #   Message Doesn't exist
             self.displayImage( imgPath )
 
-    def embeddedMedium(self, imagePath, image ):
+    def embeddedMedium(self, imagePath ):
+        #   Enable options
+        self.btnExtract.setEnabled( True )
+        self.btnWipeMedium.setEnabled( True )
+        self.stackMessage.setEnabled( True )
+
+        #   Check message type for stack Message
+        child = self.selectedItem.child(0)
+        messageType = child.text(0)
+
+        if messageType == "Text":
+            #   Change to Text View
+            self.stackMessage.setCurrentIndex(1)
+
+        else:
+            #   Change to graphics View
+            self.stackMessage.setCurrentIndex(0)
+
+        #   Display chosen image
         self.viewMedium.setEnabled( True )
-        scene = QGraphicsScene()
-        scene.addPixmap(QPixmap(imagePath))
-        self.viewMedium.setScene( scene )
-        self.viewMedium.show()
-        pass
+        self.showImage( self.viewMedium, imagePath )
 
     def displayImage(self, imagePath ):
+        #   Set other views to disabled
+        self.stackMessage.setDisabled( True )
+        self.btnExtract.setDisabled( True )
+        self.btnWipeMedium.setDisabled( True )
+        #   Display the chosen image
         self.viewMedium.setEnabled( True )
+        self.showImage( self.viewMedium, imagePath )
+
+    def showImage(self, view, imagePath):
         scene = QGraphicsScene()
         scene.addPixmap(QPixmap(imagePath))
-        self.viewMedium.setScene( scene )
-        self.viewMedium.show()
+        view.setScene( scene )
+        view.show()
+
+    def wipeMessage(self):
+
+        #   Confirm irreversible action
+        box = self.createMessageBox()
+        ret = box.exec_()
+        print( str( ret ))
+        if ret == 16384:
+            self.btnWipeMedium.setDisabled( True )
+            self.clearMessageMedium()
+            self.txtMessage.setPlainText("")
+            self.stackMessage.setDisabled( True )
+            self.image.wipeMedium()
+
+    def createMessageBox(self):
+        dialogBox = QMessageBox()
+        dialogBox.setText( "Are you sure you want to wipe the medium?" )
+        dialogBox.setStandardButtons( QMessageBox.Yes | QMessageBox.Cancel )
+        return dialogBox
+
+    def getMessageInMedium(self):
+        self.btnExtract.setDisabled( True )
+        #   Get message from image
+        message = self.image.extractMessageFromMedium()
+        messageType = message.getMessageTypeFromXML()
+
+        if messageType == "Text":
+            #   Extract text
+            textMessage = message.getTextMessage()
+            messageString = str( textMessage )[2:-1]
+            self.txtMessage.setPlainText( messageString )
+        else:
+            #   Extract image
+            message.saveToTarget("out.png")
+            self.showImage( self.viewMessage, "out.png" )
+            pass
 
 def main():
     browserApp = QApplication(sys.argv)
