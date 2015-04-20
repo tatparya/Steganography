@@ -133,13 +133,20 @@ class SteganographyBrowser( QMainWindow, Ui_MainWindow ):
             sys.exit(self.exec_())
 
         self.folderPath = folderPath
-
-        #   Connect Buttons
-
+        #   Initialize to initial state
         self.initialize( folderPath )
+
+        #   Connect Signals
+        self.fileTreeWidget.itemClicked.connect( lambda : self.getMessage() )
 
     # ------------- Initial State -------------
     def initialize(self, folderPath):
+        #   Set other views to disabled
+        self.viewMedium.setDisabled( True )
+        self.stackMessage.setDisabled( True )
+        self.btnExtract.setDisabled( True )
+        self.btnWipeMedium.setDisabled( True )
+
         #   Get files in folder
         filesInFolder = glob.glob( "{0}/*".format( folderPath ) )
 
@@ -181,6 +188,42 @@ class SteganographyBrowser( QMainWindow, Ui_MainWindow ):
             #   Add Item to parent tree
             self.fileTreeWidget.addTopLevelItem( item )
             item.setExpanded( True )
+
+    def getMessage(self):
+        print( "Item Clicked!!" )
+        item = self.fileTreeWidget.currentItem()
+        #   Check if sub child is clicked
+        if item.parent():
+            itemParent = item.parent()
+        else:
+            itemParent = item
+
+        #   Check if item has message
+        imgPath = self.folderPath + "\\" + itemParent.text(0)
+        image = NewSteganography( imagePath=imgPath )
+
+        result = image.checkIfMessageExists()
+        if result[0]:
+            #   Message Exists
+            self.embeddedMedium( imgPath, image )
+        else:
+            #   Message Doesn't exist
+            self.displayImage( imgPath )
+
+    def embeddedMedium(self, imagePath, image ):
+        self.viewMedium.setEnabled( True )
+        scene = QGraphicsScene()
+        scene.addPixmap(QPixmap(imagePath))
+        self.viewMedium.setScene( scene )
+        self.viewMedium.show()
+        pass
+
+    def displayImage(self, imagePath ):
+        self.viewMedium.setEnabled( True )
+        scene = QGraphicsScene()
+        scene.addPixmap(QPixmap(imagePath))
+        self.viewMedium.setScene( scene )
+        self.viewMedium.show()
 
 def main():
     browserApp = QApplication(sys.argv)

@@ -2,10 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9250c3da-f305-4f2d-9195-aedd7cc49ea3" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Steganography.py" afterPath="$PROJECT_DIR$/Steganography.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SteganographyBrowser.py" afterPath="$PROJECT_DIR$/SteganographyBrowser.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/testSteg.py" afterPath="$PROJECT_DIR$/testSteg.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/testStegBrowser.py" afterPath="$PROJECT_DIR$/testStegBrowser.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="Steganography.iws" />
@@ -35,8 +32,8 @@
           <file leaf-file-name="Steganography.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/Steganography.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.0" vertical-offset="8220" max-vertical-offset="10980">
-                  <caret line="416" column="26" selection-start-line="416" selection-start-column="26" selection-end-line="416" selection-end-column="26" />
+                <state vertical-scroll-proportion="0.0" vertical-offset="6060" max-vertical-offset="10980">
+                  <caret line="326" column="8" selection-start-line="326" selection-start-column="8" selection-end-line="326" selection-end-column="8" />
                   <folding />
                 </state>
               </provider>
@@ -45,8 +42,8 @@
           <file leaf-file-name="SteganographyBrowser.py" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/SteganographyBrowser.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="1.0215462" vertical-offset="2554" max-vertical-offset="3840">
-                  <caret line="175" column="17" selection-start-line="175" selection-start-column="17" selection-end-line="175" selection-end-column="17" />
+                <state vertical-scroll-proportion="0.5183777" vertical-offset="3791" max-vertical-offset="4700">
+                  <caret line="217" column="30" selection-start-line="217" selection-start-column="30" selection-end-line="217" selection-end-column="30" />
                   <folding />
                 </state>
               </provider>
@@ -59,8 +56,8 @@
           <file leaf-file-name="SteganographyGUI.py" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/SteganographyGUI.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.42205322" vertical-offset="527" max-vertical-offset="2200">
-                  <caret line="43" column="29" selection-start-line="43" selection-start-column="29" selection-end-line="43" selection-end-column="29" />
+                <state vertical-scroll-proportion="0.26996198" vertical-offset="227" max-vertical-offset="2200">
+                  <caret line="22" column="31" selection-start-line="22" selection-start-column="31" selection-end-line="22" selection-end-column="31" />
                   <folding />
                 </state>
               </provider>
@@ -89,8 +86,8 @@
         <option value="$PROJECT_DIR$/test.py" />
         <option value="$PROJECT_DIR$/SteganographyBrowser.py.py" />
         <option value="$PROJECT_DIR$/testSteg.py" />
-        <option value="$PROJECT_DIR$/Steganography.py" />
         <option value="$PROJECT_DIR$/SteganographyBrowser.py" />
+        <option value="$PROJECT_DIR$/Steganography.py" />
       </list>
     </option>
   </component>
@@ -636,24 +633,24 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/SteganographyGUI.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.42205322" vertical-offset="527" max-vertical-offset="2200">
-          <caret line="43" column="29" selection-start-line="43" selection-start-column="29" selection-end-line="43" selection-end-column="29" />
+        <state vertical-scroll-proportion="0.26996198" vertical-offset="227" max-vertical-offset="2200">
+          <caret line="22" column="31" selection-start-line="22" selection-start-column="31" selection-end-line="22" selection-end-column="31" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Steganography.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="8220" max-vertical-offset="10980">
-          <caret line="416" column="26" selection-start-line="416" selection-start-column="26" selection-end-line="416" selection-end-column="26" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="6060" max-vertical-offset="10980">
+          <caret line="326" column="8" selection-start-line="326" selection-start-column="8" selection-end-line="326" selection-end-column="8" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/SteganographyBrowser.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="1.0215462" vertical-offset="2554" max-vertical-offset="3840">
-          <caret line="175" column="17" selection-start-line="175" selection-start-column="17" selection-end-line="175" selection-end-column="17" />
+        <state vertical-scroll-proportion="0.5183777" vertical-offset="3791" max-vertical-offset="4700">
+          <caret line="217" column="30" selection-start-line="217" selection-start-column="30" selection-end-line="217" selection-end-column="30" />
           <folding />
         </state>
       </provider>
