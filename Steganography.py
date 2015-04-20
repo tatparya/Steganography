@@ -466,8 +466,6 @@ class Steganography:
         if match:
             #   Message is valid
             self.message = Message( XmlString=match[0] )
-            #print( "Extracted Message:")
-            #print( self.message )
             return self.message
 
     ###     Helper Functions

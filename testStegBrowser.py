@@ -23,8 +23,8 @@ def main():
     #medium.embedMessageInMedium( message, "files/nature_sunflower_v_out.png")
 
     #   Testing steg class
-    nature = NewSteganography( "nature_sunflower_h.png", "horizontal" )
-    nature.checkIfMessageExists()
+    nature = NewSteganography( "bridge_dog_v.png", "vertical" )
+    print( nature.checkIfMessageExists() )
     #bridge = Steganography.Steganography( "bridge.png", "horizontal" )
     #bridge.embedMessageInMedium( mes, "bridge_out.png" )
     #image = Steganography.Steganography( "bridge_dog_v.png", "vertical" )

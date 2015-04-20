@@ -25,10 +25,10 @@ def main():
     #   Testing steg class
     #bridge = Steganography.Steganography( "bridge.png", "horizontal" )
     #bridge.embedMessageInMedium( mes, "bridge_out.png" )
-    #image = Steganography.Steganography( "bridge_dog_v.png", "vertical" )
+    image = Steganography.Steganography( "bridge_dog_v.png", "vertical" )
     #image.embedMessageInMedium( mes, "mona_test.png" )
     #image.embedCustomMessage( "TS", "mona_test.png" )
-    #image.extractMessageFromMedium()
+    print( image.extractMessageFromMedium() )
     #print( image.image.getpixel( (700,670)) )
     #image.message.saveToTarget( "out.txt" )
 
