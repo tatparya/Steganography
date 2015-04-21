@@ -2,7 +2,6 @@ __author__ = 'ee364h05'
 
 import os
 import sys
-import SteganographyGUI
 import glob
 
 from PySide.QtGui import *
@@ -10,6 +9,7 @@ from SteganographyGUI import *
 from Steganography import *
 
 # ------------- New Steganography Class -------------
+
 class NewSteganography( Steganography ):
 
     ###     Constructor
@@ -124,6 +124,7 @@ class NewSteganography( Steganography ):
         return result
 
 # ------------- SteganographyBrowser Class -------------
+
 class SteganographyBrowser( QMainWindow, Ui_MainWindow ):
 
     # ------------- Constructor -------------
@@ -135,7 +136,7 @@ class SteganographyBrowser( QMainWindow, Ui_MainWindow ):
         #   Get folder browser to get folder path
         folderPath = QFileDialog.getExistingDirectory( self, caption="Open folder with images" )
         if not folderPath:
-            sys.exit(self.exec_())
+            sys.exit()
 
         self.folderPath = folderPath
         #   Initialize to initial state
@@ -368,7 +369,8 @@ def main():
 
     browserForm.show()
     browserApp.exec_()
-    pass
+
+    sys.exit(browserApp.exec_())
 
 if __name__ == "__main__":
     main()
