@@ -2,10 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9250c3da-f305-4f2d-9195-aedd7cc49ea3" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bridge_dog_v.png" afterPath="$PROJECT_DIR$/bridge_dog_v.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/nature_sunflower_h.png" afterPath="$PROJECT_DIR$/nature_sunflower_h.png" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/phase2 Test Files/bridge_dog_h.png" afterPath="$PROJECT_DIR$/phase2 Test Files/bridge_dog_h.png" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/phase2 Test Files/bridge_mona_enc.png" afterPath="$PROJECT_DIR$/phase2 Test Files/bridge_mona_enc.png" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/phase2 Test Files/lena_full_enc.png" afterPath="$PROJECT_DIR$/phase2 Test Files/lena_full_enc.png" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/phase2 Test Files/lena_full_h.png" afterPath="$PROJECT_DIR$/phase2 Test Files/lena_full_h.png" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/phase2 Test Files/mona_small_h.png" afterPath="$PROJECT_DIR$/phase2 Test Files/mona_small_h.png" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/phase2 Test Files/mona_small_v.png" afterPath="$PROJECT_DIR$/phase2 Test Files/mona_small_v.png" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out.png" afterPath="$PROJECT_DIR$/out.png" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SteganographyBrowser.py" afterPath="$PROJECT_DIR$/SteganographyBrowser.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/testStegBrowser.py" afterPath="$PROJECT_DIR$/testStegBrowser.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="Steganography.iws" />
@@ -45,8 +49,8 @@
           <file leaf-file-name="SteganographyBrowser.py" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/SteganographyBrowser.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.36628643" vertical-offset="5111" max-vertical-offset="6360">
-                  <caret line="277" column="37" selection-start-line="277" selection-start-column="37" selection-end-line="277" selection-end-column="37" />
+                <state vertical-scroll-proportion="0.6704689" vertical-offset="3831" max-vertical-offset="7440">
+                  <caret line="225" column="21" selection-start-line="225" selection-start-column="21" selection-end-line="225" selection-end-column="21" />
                   <folding />
                 </state>
               </provider>
@@ -79,8 +83,8 @@
           <file leaf-file-name="Steganography.py" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/Steganography.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="-0.7197368" vertical-offset="6747" max-vertical-offset="10980">
-                  <caret line="314" column="12" selection-start-line="314" selection-start-column="12" selection-end-line="314" selection-end-column="12" />
+                <state vertical-scroll-proportion="0.49078947" vertical-offset="6267" max-vertical-offset="10980">
+                  <caret line="336" column="35" selection-start-line="336" selection-start-column="35" selection-end-line="336" selection-end-column="35" />
                   <folding />
                 </state>
               </provider>
@@ -680,8 +684,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/SteganographyBrowser.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.36628643" vertical-offset="5111" max-vertical-offset="6360">
-          <caret line="277" column="37" selection-start-line="277" selection-start-column="37" selection-end-line="277" selection-end-column="37" />
+        <state vertical-scroll-proportion="0.6704689" vertical-offset="3831" max-vertical-offset="7440">
+          <caret line="225" column="21" selection-start-line="225" selection-start-column="21" selection-end-line="225" selection-end-column="21" />
           <folding />
         </state>
       </provider>
