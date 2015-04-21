@@ -4,6 +4,7 @@ import os
 import sys
 import glob
 
+from PySide.QtCore import *
 from PySide.QtGui import *
 from SteganographyGUI import *
 from Steganography import *
@@ -309,7 +310,9 @@ class SteganographyBrowser( QMainWindow, Ui_MainWindow ):
     #   2. imagePath:   Path to the image
     def showImage(self, view, imagePath):
         scene = QGraphicsScene()
-        scene.addPixmap(QPixmap(imagePath))
+        image = QPixmap( imagePath )
+        image2 = image.scaled(270, 250, Qt.KeepAspectRatio )
+        scene.addPixmap(image2)
         view.setScene( scene )
         view.show()
 

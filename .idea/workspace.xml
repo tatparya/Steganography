@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9250c3da-f305-4f2d-9195-aedd7cc49ea3" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Steganography.py" afterPath="$PROJECT_DIR$/Steganography.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SteganographyBrowser.py" afterPath="$PROJECT_DIR$/SteganographyBrowser.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="Steganography.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -41,8 +42,8 @@
           <file leaf-file-name="SteganographyBrowser.py" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/SteganographyBrowser.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.2572877" vertical-offset="4537" max-vertical-offset="7620">
-                  <caret line="237" column="8" selection-start-line="237" selection-start-column="8" selection-end-line="237" selection-end-column="8" />
+                <state vertical-scroll-proportion="0.45627376" vertical-offset="5940" max-vertical-offset="7680">
+                  <caret line="315" column="30" selection-start-line="315" selection-start-column="30" selection-end-line="315" selection-end-column="30" />
                   <folding>
                     <element signature="e#25#34#0" expanded="true" />
                   </folding>
@@ -87,8 +88,8 @@
         <option value="$PROJECT_DIR$/test.py" />
         <option value="$PROJECT_DIR$/SteganographyBrowser.py.py" />
         <option value="$PROJECT_DIR$/testSteg.py" />
-        <option value="$PROJECT_DIR$/SteganographyBrowser.py" />
         <option value="$PROJECT_DIR$/Steganography.py" />
+        <option value="$PROJECT_DIR$/SteganographyBrowser.py" />
       </list>
     </option>
   </component>
@@ -156,7 +157,7 @@
       <console-settings />
     </option>
   </component>
-  <component name="RunManager" selected="Python tests.Unittests in SteganographyTest">
+  <component name="RunManager" selected="Python.SteganographyBrowser">
     <configuration default="false" name="Unittests in SteganographyTest" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -390,8 +391,8 @@
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python tests.Unittests in SteganographyTest" />
-        <item index="1" class="java.lang.String" itemvalue="Python.SteganographyBrowser" />
+        <item index="0" class="java.lang.String" itemvalue="Python.SteganographyBrowser" />
+        <item index="1" class="java.lang.String" itemvalue="Python tests.Unittests in SteganographyTest" />
         <item index="2" class="java.lang.String" itemvalue="Python.testStegBrowser" />
         <item index="3" class="java.lang.String" itemvalue="Python.testSteg" />
         <item index="4" class="java.lang.String" itemvalue="Python.test" />
@@ -672,8 +673,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/SteganographyBrowser.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.2572877" vertical-offset="4537" max-vertical-offset="7620">
-          <caret line="237" column="8" selection-start-line="237" selection-start-column="8" selection-end-line="237" selection-end-column="8" />
+        <state vertical-scroll-proportion="0.45627376" vertical-offset="5940" max-vertical-offset="7680">
+          <caret line="315" column="30" selection-start-line="315" selection-start-column="30" selection-end-line="315" selection-end-column="30" />
           <folding>
             <element signature="e#25#34#0" expanded="true" />
           </folding>
