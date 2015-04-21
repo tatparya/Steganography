@@ -483,57 +483,6 @@ class Steganography:
 
         return binaryChar
 
-    def embedCustomMessage(self, messageStr, targetImagePath ):
-        size = len( messageStr )
-        #   Check if message can fit in medium
-        if size > self.maxMessageSize:
-            #raise ValueError( "Message is larget than what the medium can hold" )
-            pass
-
-        print( "Embedding: ", messageStr )
-
-        pixelCount = 0
-        #   Get each symbol in string
-        for letter in messageStr:
-            #print( letter, ": ", ord(letter ))
-            for i in range(8):
-                #   Gets each bit
-                bit = ( ord(letter) >> 8-i-1 ) & 1
-                #print( bit, ": ", 8-i-1 )
-                #   Embed bit in message
-                if bit == 0:
-                    if self.pixelList[ pixelCount ] % 2 != 0:
-                        self.pixelList[ pixelCount ] += 1
-                elif bit == 1:
-                    if self.pixelList[ pixelCount ] % 2 == 0:
-                        self.pixelList[ pixelCount ] -= 1
-                pixelCount += 1
-
-        #   Save the iamge to target path
-        self.modifyPixData()
-        targetImage.save( targetImagePath )
-        print( "Here!!")
-
-    def modifyPixData(self, targetImage ):
-        #   Get direction
-        direction = self.direction
-        pixelMap = targetImage.load()
-
-        #if direction == "horizontal":
-        #    targetImage.putdata( self.pixelList )
-        #elif direction == "vertical":
-        #    targetImage.putdata( self.pixelList )
-
-        if direction == "horizontal":
-            for row in range( self.image.size[1] ):
-                for col in range( self.image.size[0] ):
-                    pixelMap[ col,row ] = self.pixelList[ row * self.image.size[1] + col ]
-
-        elif direction == "vertical":
-            for col in range( self.image.size[0] ):
-                for row in range( self.image.size[1] ):
-                    pixelMap[ col,row ] = self.pixelList[ col * self.image.size[0] + row ]
-
 #   Main Block
 def main():
 
